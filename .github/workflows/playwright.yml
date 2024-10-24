@@ -15,12 +15,16 @@ jobs:
         node-version: lts/*
     - name: Install dependencies
       run: npm ci
+
+    - name: Create Sitecore JSS application
+      run: |
+        npx --yes create-sitecore-jss --templates nextjs,nextjs-styleguide --fetchWith REST --destination sample/nextjs-app --yes
+        cd sample/nextjs-app
+        npm run start & npx wait-on http://127.0.0.1:3000
+
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
-    - name: Run app and execute test
-      shell: pwsh
-      run: |
-        .\test.ps1
+
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
