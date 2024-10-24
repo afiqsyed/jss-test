@@ -22,11 +22,14 @@ jobs:
 
     - name: Build Docker image
       run: |
-        cd sample/nextjs-app
         echo "FROM node:14-alpine" > Dockerfile
         echo "WORKDIR /app" >> Dockerfile
         echo "COPY . ." >> Dockerfile
         echo "RUN npm install" >> Dockerfile
+        echo "RUN npx playwright install" >> Dockerfile
+        echo "RUN npx playwright install-deps" >> Dockerfile
+        echo "RUN npx --yes create-sitecore-jss --templates nextjs,nextjs-styleguide --fetchWith REST --destination sample/nextjs-app --yes" >> Dockerfile
+        echo "WORKDIR /app/sample/nextjs-app" >> Dockerfile
         echo "CMD [\"npm\", \"run\", \"start\"]" >> Dockerfile
         docker build -t nextjs-app .
 
@@ -35,11 +38,9 @@ jobs:
         docker run -d -p 3000:3000 --name nextjs-app nextjs-app
         sleep 20
 
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-
-    - name: Run Test
-      run: npx playwright test
+    - name: Run tests inside Docker container
+      run: |
+        docker exec nextjs-app sh -c "cd /app && npm install && npx playwright test"
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
