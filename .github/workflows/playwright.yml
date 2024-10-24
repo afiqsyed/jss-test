@@ -13,16 +13,10 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-
-    - name: Create Sitecore JSS application
-      run: |
-        npx --yes create-sitecore-jss --templates nextjs,nextjs-styleguide --fetchWith REST --destination sample/nextjs-app --yes
-
+        
     - name: Build Docker image
       run: |
-        echo "FROM node:14-alpine" > Dockerfile
+        echo "node:20-bookworm" > Dockerfile
         echo "WORKDIR /app" >> Dockerfile
         echo "COPY . ." >> Dockerfile
         echo "RUN npm install" >> Dockerfile
