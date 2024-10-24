@@ -15,7 +15,7 @@ Notes:
  
 $projectRoot = (Get-Item $PSScriptRoot).parent.FullName
 $sampleAppPath = "$projectRoot/sample/nextjs-app"
-$url="http://127.0.0.1:3000"
+$url="http://localhost:3000"
  
  
 #Create Sitecore JSS application
@@ -28,6 +28,13 @@ if (Test-Path $sampleAppPath) {
     Write-Host "The directory $sampleAppPath does not exist"
 }
 
+# Print out all the files inside the directory
+    Write-Host "Listing all files in $sampleAppPath:"
+    Get-ChildItem -Path $sampleAppPath -Recurse | ForEach-Object {
+        Write-Host $_.FullName
+    }
+
+
 try {
     #Run the Sitecore JSS app in Disconnected mode. This will spin up the SUT in http://localhost:3000
     Write-Host "Running the Next.js Application in Disconnected mode..."
@@ -38,7 +45,7 @@ try {
  
     #Verify Site Availability
     $intervalSec=10
-    $retries=10
+    $retries=60
     $originalRetryCount = $retries
     $client = New-Object System.Net.WebClient
     do { Start-Sleep -Seconds $intervalSec; $retries-- } 
