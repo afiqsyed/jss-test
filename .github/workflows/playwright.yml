@@ -16,7 +16,7 @@ jobs:
         
     - name: Build Docker image
       run: |
-        echo "node:20-bookworm" > Dockerfile
+        echo "FROM node:20-bookworm" > Dockerfile
         echo "WORKDIR /app" >> Dockerfile
         echo "COPY . ." >> Dockerfile
         echo "RUN npm install" >> Dockerfile
