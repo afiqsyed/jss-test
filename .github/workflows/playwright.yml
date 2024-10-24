@@ -30,7 +30,15 @@ jobs:
     - name: Run Docker container
       run: |
         docker run -d -p 3000:3000 --name nextjs-app nextjs-app
-        sleep 20
+        sleep 120
+    
+    - name: Verify Docker container is running
+      run: |
+        if [ "$(docker inspect -f '{{.State.Running}}' nextjs-app)" != "true" ]; then
+          echo "Docker container is not running."
+          exit 1
+        fi
+        echo "Docker container is running."
 
     - name: Run tests inside Docker container
       run: |
