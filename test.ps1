@@ -20,6 +20,14 @@ $url="http://127.0.0.1:3000"
  
 #Create Sitecore JSS application
 npx --yes create-sitecore-jss --templates nextjs,nextjs-styleguide --fetchWith REST --destination $sampleAppPath --yes
+
+# Verify that the nextjs-app directory exists
+if (Test-Path $sampleAppPath) {
+    Write-Host "The directory $sampleAppPath exists."
+} else {
+    Write-Host "The directory $sampleAppPath does not exist"
+}
+
 try {
     #Run the Sitecore JSS app in Disconnected mode. This will spin up the SUT in http://localhost:3000
     Write-Host "Running the Next.js Application in Disconnected mode..."
