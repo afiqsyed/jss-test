@@ -19,11 +19,27 @@ jobs:
     - name: Create Sitecore JSS application
       run: |
         npx --yes create-sitecore-jss --templates nextjs,nextjs-styleguide --fetchWith REST --destination sample/nextjs-app --yes
+
+    - name: Build Docker image
+      run: |
         cd sample/nextjs-app
-        npm run start & npx wait-on http://127.0.0.1:3000
+        echo "FROM node:14-alpine" > Dockerfile
+        echo "WORKDIR /app" >> Dockerfile
+        echo "COPY . ." >> Dockerfile
+        echo "RUN npm install" >> Dockerfile
+        echo "CMD [\"npm\", \"run\", \"start\"]" >> Dockerfile
+        docker build -t nextjs-app .
+
+    - name: Run Docker container
+      run: |
+        docker run -d -p 3000:3000 --name nextjs-app nextjs-app
+        sleep 20
 
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
+
+    - name: Run Test
+      run: npx playwright test
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
