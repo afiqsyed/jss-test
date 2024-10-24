@@ -29,7 +29,7 @@ if (Test-Path $sampleAppPath) {
 }
 
 # Print out all the files inside the directory
-    Write-Host "Listing all files in $sampleAppPath:"
+    Write-Host "Listing all files in ${sampleAppPath}:"
     Get-ChildItem -Path $sampleAppPath -Recurse | ForEach-Object {
         Write-Host $_.FullName
     }
