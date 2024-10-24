@@ -20,7 +20,7 @@ jobs:
     - name: Run app and execute test
       shell: pwsh
       run: |
-        .\build.ps1
+        .\test.ps1
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:

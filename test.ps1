@@ -45,6 +45,9 @@ try {
     )
  
     #Run tests here
+    Write-Output "Current Directory: $(Get-Location)"
+    npm install
+    npx playwright test
 }
 finally {
     # Clean up any background jobs and node processes
