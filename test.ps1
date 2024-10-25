@@ -28,11 +28,11 @@ if (Test-Path $sampleAppPath) {
     Write-Host "The directory $sampleAppPath does not exist"
 }
 
-# Print out all the files inside the directory
-    Write-Host "Listing all files in ${sampleAppPath}:"
-    Get-ChildItem -Path $sampleAppPath -Recurse | ForEach-Object {
-        Write-Host $_.FullName
-    }
+# Print out all the files and folders at the root level of the directory
+Write-Host "Listing all files and folders in ${sampleAppPath}:"
+Get-ChildItem -Path $sampleAppPath | ForEach-Object {
+    Write-Host $_.FullName
+}
 
 
 try {
