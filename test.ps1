@@ -40,7 +40,7 @@ try {
     Write-Host "Running the Next.js Application in Disconnected mode..."
     $job = Start-Job -Name "RenderingHostJob_Disconnected" -InputObject $sampleAppPath -ScriptBlock {
         Set-Location $input
-        npm run start
+        npm run start 2>&1 | Out-String
     }
  
     #Verify Site Availability
@@ -58,6 +58,11 @@ try {
             Write-Host "A web exception was caught (waiting for another $intervalSec sec.): $($_.Exception.Message)"
         }) -or $retries -lt 1
     )
+
+    # Retrieve and print the output of the npm run start command
+    $jobOutput = Receive-Job -Job $job -Keep
+    Write-Host "npm run start output:"
+    Write-Host $jobOutput
  
     #Run tests here
     Write-Output "Current Directory: $(Get-Location)"

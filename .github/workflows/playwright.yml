@@ -13,42 +13,14 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
-        
-    - name: Build Docker image
+    - name: Install dependencies
+      run: npm ci
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+    - name: Run app and execute test
+      shell: pwsh
       run: |
-        echo "FROM node:20-bookworm" > Dockerfile
-        echo "WORKDIR /app" >> Dockerfile
-        echo "COPY . ." >> Dockerfile
-        echo "RUN npm install" >> Dockerfile
-        echo "RUN npx playwright install" >> Dockerfile
-        echo "RUN npx playwright install-deps" >> Dockerfile
-        echo "RUN npx --yes create-sitecore-jss --templates nextjs,nextjs-styleguide --fetchWith REST --destination sample/nextjs-app --yes" >> Dockerfile
-        echo "WORKDIR /app/sample/nextjs-app" >> Dockerfile
-        echo "RUN ls -la /app/sample/nextjs-app" >> Dockerfile
-        echo "CMD [\"npm\", \"run\", \"start\"]" >> Dockerfile
-        docker build -t nextjs-app .
-
-    - name: Run Docker container
-      run: |
-        docker run -d -p 3000:3000 --name nextjs-app nextjs-app
-        sleep 120
-
-    - name: Print Docker logs
-      run: |
-        docker logs nextjs-app
-    
-    - name: Verify Docker container is running
-      run: |
-        if [ "$(docker inspect -f '{{.State.Running}}' nextjs-app)" != "true" ]; then
-          echo "Docker container is not running."
-          exit 1
-        fi
-        echo "Docker container is running."
-
-    - name: Run tests inside Docker container
-      run: |
-        docker exec nextjs-app sh -c "cd /app && npm install && npx playwright test"
-
+        .\test.ps1
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
