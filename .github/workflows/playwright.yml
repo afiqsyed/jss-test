@@ -24,6 +24,7 @@ jobs:
         echo "RUN npx playwright install-deps" >> Dockerfile
         echo "RUN npx --yes create-sitecore-jss --templates nextjs,nextjs-styleguide --fetchWith REST --destination sample/nextjs-app --yes" >> Dockerfile
         echo "WORKDIR /app/sample/nextjs-app" >> Dockerfile
+        echo "RUN ls -la /app/sample/nextjs-app" >> Dockerfile
         echo "CMD [\"npm\", \"run\", \"start\"]" >> Dockerfile
         docker build -t nextjs-app .
 
