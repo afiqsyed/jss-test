@@ -1,4 +1,4 @@
-name: Playwright Tests
+name: Run Test - Docker
 on:
   push:
     branches: [ main, master ]
@@ -14,14 +14,10 @@ jobs:
       with:
         node-version: lts/*
         
-    - name: Build Docker image
+    - name: Build Docker JSS Image
       run: |
         echo "FROM node:20-bookworm" > Dockerfile
         echo "WORKDIR /app" >> Dockerfile
-        echo "COPY . ." >> Dockerfile
-        echo "RUN npm install" >> Dockerfile
-        echo "RUN npx playwright install" >> Dockerfile
-        echo "RUN npx playwright install-deps" >> Dockerfile
         echo "RUN npx --yes create-sitecore-jss --templates nextjs,nextjs-styleguide --fetchWith REST --destination sample/nextjs-app --yes" >> Dockerfile
         echo "WORKDIR /app/sample/nextjs-app" >> Dockerfile
         echo "RUN ls -la /app/sample/nextjs-app" >> Dockerfile
@@ -45,9 +41,14 @@ jobs:
         fi
         echo "Docker container is running."
 
-    - name: Run tests inside Docker container
-      run: |
-        docker exec nextjs-app sh -c "cd /app && npm install && npx playwright test"
+    - name: Install playwright dependencies
+      run: npm ci
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Run Playwright Tests
+      run: npx playwright test
 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}

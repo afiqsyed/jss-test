@@ -71,6 +71,14 @@ try {
     npm install
     npx playwright install --with-deps
     npx playwright test
+
+    #Failed the pipeline if there are tests failed
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Tests failed"
+        exit 1
+    }
+    
+    
 }
 finally {
     # Clean up any background jobs and node processes
