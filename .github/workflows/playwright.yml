@@ -32,6 +32,10 @@ jobs:
       run: |
         docker run -d -p 3000:3000 --name nextjs-app nextjs-app
         sleep 120
+
+    - name: Print Docker logs
+      run: |
+        docker logs nextjs-app
     
     - name: Verify Docker container is running
       run: |
