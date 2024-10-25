@@ -40,12 +40,15 @@ try {
     Write-Host "Running the Next.js Application in Disconnected mode..."
     $job = Start-Job -Name "RenderingHostJob_Disconnected" -InputObject $sampleAppPath -ScriptBlock {
         Set-Location $input
-        npm run start 2>&1 | Out-String
+        $installOutput = npm install -g npm-run-all 2>&1 | Out-String
+        $startOutput = npm run start 2>&1 | Out-String
+        return $installOutput + $startOutput
     }
+
  
     #Verify Site Availability
     $intervalSec=10
-    $retries=60
+    $retries=10
     $originalRetryCount = $retries
     $client = New-Object System.Net.WebClient
     do { Start-Sleep -Seconds $intervalSec; $retries-- } 
