@@ -40,9 +40,8 @@ try {
     Write-Host "Running the Next.js Application in Disconnected mode..."
     $job = Start-Job -Name "RenderingHostJob_Disconnected" -InputObject $sampleAppPath -ScriptBlock {
         Set-Location $input
-        $installOutput = npm install -g npm-run-all 2>&1 | Out-String
         $startOutput = npm run start 2>&1 | Out-String
-        return $installOutput + $startOutput
+        return $startOutput
     }
 
  
@@ -70,6 +69,7 @@ try {
     #Run tests here
     Write-Output "Current Directory: $(Get-Location)"
     npm install
+    npx playwright install --with-deps
     npx playwright test
 }
 finally {
