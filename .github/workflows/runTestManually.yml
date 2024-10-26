@@ -20,81 +20,10 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: lts/*
-    - name: Set Variables
+    - name: Run app and execute test
       shell: pwsh
       run: |
-        $projectRoot = (Get-Item $PSScriptRoot).parent.FullName
-        $sampleAppPath = "$projectRoot/sample/nextjs-app"
-        $url="http://localhost:3000"
-        echo "::set-output name=projectRoot::$projectRoot"
-        echo "::set-output name=sampleAppPath::$sampleAppPath"
-        echo "::set-output name=url::$url"
-      id: vars
-    - name: Create Sitecore JSS Application
-      shell: pwsh
-      run: |
-        npx --yes create-sitecore-jss --templates nextjs,nextjs-styleguide --fetchWith REST --destination ${{ steps.vars.outputs.sampleAppPath }} --yes
-    - name: Verify Directory
-      shell: pwsh
-      run: |
-        if (Test-Path ${{ steps.vars.outputs.sampleAppPath }}) {
-            Write-Host "The directory ${{ steps.vars.outputs.sampleAppPath }} exists."
-        } else {
-            Write-Host "The directory ${{ steps.vars.outputs.sampleAppPath }} does not exist"
-        }
-    - name: List Files and Folders
-      shell: pwsh
-      run: |
-        Write-Host "Listing all files and folders in ${{ steps.vars.outputs.sampleAppPath }}:"
-        Get-ChildItem -Path ${{ steps.vars.outputs.sampleAppPath }} | ForEach-Object {
-            Write-Host $_.FullName
-        }
-    - name: Run Next.js Application
-      shell: pwsh
-      run: |
-        $job = Start-Job -Name "RenderingHostJob_Disconnected" -InputObject ${{ steps.vars.outputs.sampleAppPath }} -ScriptBlock {
-            param ($input)
-            Set-Location $input
-            $startOutput = npm run start 2>&1 | Out-String
-            return $startOutput
-        }
-        echo "::set-output name=jobId::$($job.Id)"
-      id: run_app
-    - name: Verify Site Availability
-      shell: pwsh
-      run: |
-        $intervalSec=10
-        $retries=10
-        $originalRetryCount = $retries
-        $client = New-Object System.Net.WebClient
-        do { Start-Sleep -Seconds $intervalSec; $retries-- } 
-        until (
-            $(try { Write-Host "[$($originalRetryCount - $retries)] Requesting: ${{ steps.vars.outputs.url }}"
-                $response = $client.DownloadString("${{ steps.vars.outputs.url }}")
-                Write-Host "Response code: OK"
-                $null -ne $response
-            } catch [System.Net.WebException] { 
-                Write-Host "A web exception was caught (waiting for another $intervalSec sec.): $($_.Exception.Message)"
-            }) -or $retries -lt 1
-        )
-    - name: Install Dependencies and Run Tests
-      shell: pwsh
-      run: |
-        Set-Location ${{ steps.vars.outputs.sampleAppPath }}
-        npm install
-        npx playwright install --with-deps
-        npx playwright test --workers=${{ github.event.inputs.workers }} --retries=${{ github.event.inputs.retries }}
-        if ($LASTEXITCODE -ne 0) {
-            Write-Error "Tests failed"
-            exit 1
-        }
-    - name: Clean Up
-      shell: pwsh
-      run: |
-        Write-Host "Removing Job ${{ steps.run_app.outputs.jobId }} ..."
-        Stop-Job -Id ${{ steps.run_app.outputs.jobId }}
-        Remove-Job -Id ${{ steps.run_app.outputs.jobId }} -Force         
-        npx --yes kill-port 3000
+        .\test.ps1 -Workers ${{ github.event.inputs.workers }} -Retries ${{ github.event.inputs.retries }}
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
