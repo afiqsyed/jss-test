@@ -53,6 +53,7 @@ jobs:
       shell: pwsh
       run: |
         $job = Start-Job -Name "RenderingHostJob_Disconnected" -InputObject ${{ steps.vars.outputs.sampleAppPath }} -ScriptBlock {
+            param ($input)
             Set-Location $input
             $startOutput = npm run start 2>&1 | Out-String
             return $startOutput
@@ -69,7 +70,7 @@ jobs:
         do { Start-Sleep -Seconds $intervalSec; $retries-- } 
         until (
             $(try { Write-Host "[$($originalRetryCount - $retries)] Requesting: ${{ steps.vars.outputs.url }}"
-                $response = $client.DownloadString(${{ steps.vars.outputs.url }})
+                $response = $client.DownloadString("${{ steps.vars.outputs.url }}")
                 Write-Host "Response code: OK"
                 $null -ne $response
             } catch [System.Net.WebException] { 
